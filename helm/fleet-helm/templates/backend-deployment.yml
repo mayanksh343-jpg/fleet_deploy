@@ -32,7 +32,11 @@ spec:
 
           ports:
             - containerPort: {{ .Values.backend.containerPort }}
-
+          
+          env:
+            - name: FRONTEND_URL
+              value: "http://k8s-fleetflo-fleetflo-bee31e2f10-1e80b0ab8559bfac.elb.ap-south-1.amazonaws.com"
+        
           resources:
 
             requests:
