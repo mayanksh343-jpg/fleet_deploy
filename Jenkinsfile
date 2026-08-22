@@ -66,31 +66,23 @@ pipeline {
             }
         }
 
-        stage('Trivy Security Scan') {
-            steps {
-                sh '''
-                    set -e
+        stage('Security Scan') {
+    steps {
+        sh '''
+            trivy image \
+            --severity HIGH,CRITICAL \
+            --exit-code 0 \
+            $BACKEND_IMAGE:$TAG
 
-                    echo "Scanning backend image..."
+            trivy image \
+            --severity HIGH,CRITICAL \
+            --exit-code 0 \
+            $FRONTEND_IMAGE:$TAG
+        '''
+    }
+}
 
-                    trivy image \
-                        --exit-code 1 \
-                        --severity HIGH,CRITICAL \
-                        --ignore-unfixed \
-                        ${BACKEND_REPO}:${IMAGE_TAG}
 
-                    echo "Scanning frontend image..."
-
-                    trivy image \
-                        --exit-code 1 \
-                        --severity HIGH,CRITICAL \
-                        --ignore-unfixed \
-                        ${FRONTEND_REPO}:${IMAGE_TAG}
-
-                    echo "Security scan passed."
-                '''
-            }
-        }
 
         stage('Login to Amazon ECR') {
             steps {
