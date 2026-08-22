@@ -61,7 +61,7 @@ pipeline {
 
                     docker build \
                         -t ${FRONTEND_REPO}:${IMAGE_TAG} \
-                        ./frontend
+                        ./Frontend
                 '''
             }
         }
