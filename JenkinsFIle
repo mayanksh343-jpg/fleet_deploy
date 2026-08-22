@@ -5,17 +5,19 @@ pipeline {
     environment {
         AWS_REGION = 'ap-south-1'
         AWS_ACCOUNT_ID = '068765434248'
-        EKS_CLUSTER = 'Fleet-cluster'
+        EKS_CLUSTER = 'fleet-cluster'
 
         ECR_REGISTRY = "068765434248.dkr.ecr.ap-south-1.amazonaws.com"
 
-        BACKEND_REPO = "${ECR_REGISTRY}/school-backend"
-        FRONTEND_REPO = "${ECR_REGISTRY}/school-frontend"
+        BACKEND_REPO = "${ECR_REGISTRY}/fleetflow-backend"
+        FRONTEND_REPO = "${ECR_REGISTRY}/fleetflow-frontend"
 
         IMAGE_TAG = "${BUILD_NUMBER}"
 
-        HELM_RELEASE = 'fleet'
-        HELM_CHART = './helm/fleet-flow'
+        HELM_RELEASE = 'fleetflow'
+        HELM_CHART = './helm/fleet-helm'
+
+        K8S_NAMESPACE = 'school-management'
     }
 
     stages {
@@ -37,6 +39,7 @@ pipeline {
                     aws --version
                     kubectl version --client
                     helm version
+                    trivy --version
 
                     echo "All required tools are available."
                 '''
@@ -48,12 +51,14 @@ pipeline {
                 sh '''
                     set -e
 
-                    echo "Building backend image..."
+                    echo "Building FleetFlow backend image..."
+
                     docker build \
                         -t ${BACKEND_REPO}:${IMAGE_TAG} \
                         ./backend
 
-                    echo "Building frontend image..."
+                    echo "Building FleetFlow frontend image..."
+
                     docker build \
                         -t ${FRONTEND_REPO}:${IMAGE_TAG} \
                         ./frontend
@@ -67,6 +72,7 @@ pipeline {
                     set -e
 
                     echo "Scanning backend image..."
+
                     trivy image \
                         --exit-code 1 \
                         --severity HIGH,CRITICAL \
@@ -74,11 +80,14 @@ pipeline {
                         ${BACKEND_REPO}:${IMAGE_TAG}
 
                     echo "Scanning frontend image..."
+
                     trivy image \
                         --exit-code 1 \
                         --severity HIGH,CRITICAL \
                         --ignore-unfixed \
                         ${FRONTEND_REPO}:${IMAGE_TAG}
+
+                    echo "Security scan passed."
                 '''
             }
         }
@@ -95,6 +104,8 @@ pipeline {
                     | docker login \
                         --username AWS \
                         --password-stdin ${ECR_REGISTRY}
+
+                    echo "ECR login successful."
                 '''
             }
         }
@@ -105,10 +116,14 @@ pipeline {
                     set -e
 
                     echo "Pushing backend image..."
+
                     docker push ${BACKEND_REPO}:${IMAGE_TAG}
 
                     echo "Pushing frontend image..."
+
                     docker push ${FRONTEND_REPO}:${IMAGE_TAG}
+
+                    echo "Images pushed successfully."
                 '''
             }
         }
@@ -127,6 +142,8 @@ pipeline {
                     echo "Checking EKS nodes..."
 
                     kubectl get nodes
+
+                    echo "EKS connection successful."
                 '''
             }
         }
@@ -136,10 +153,10 @@ pipeline {
                 sh '''
                     set -e
 
-                    echo "Deploying application using Helm..."
+                    echo "Deploying FleetFlow using Helm..."
 
-                    helm upgrade --install  fleetflow ./helm/fleet-helm \
-                        --namespace school-management \
+                    helm upgrade --install ${HELM_RELEASE} ${HELM_CHART} \
+                        --namespace ${K8S_NAMESPACE} \
                         --create-namespace \
                         --set backend.image.repository=${BACKEND_REPO} \
                         --set backend.image.tag=${IMAGE_TAG} \
@@ -161,17 +178,24 @@ pipeline {
                     echo "Checking pods..."
 
                     kubectl get pods \
-                        -n school-management
+                        -n ${K8S_NAMESPACE}
+
+                    echo "Checking deployments..."
+
+                    kubectl get deployments \
+                        -n ${K8S_NAMESPACE}
 
                     echo "Checking services..."
 
-                    kubectl get services \
-                        -n school-management
+                    kubectl get svc \
+                        -n ${K8S_NAMESPACE}
 
                     echo "Checking Helm release..."
 
                     helm status ${HELM_RELEASE} \
-                        --namespace school-management
+                        --namespace ${K8S_NAMESPACE}
+
+                    echo "Deployment verification completed."
                 '''
             }
         }
@@ -181,17 +205,19 @@ pipeline {
 
         success {
             echo '======================================'
-            echo ' CI/CD PIPELINE SUCCESSFUL'
+            echo ' FLEETFLOW CI/CD PIPELINE SUCCESSFUL'
             echo '======================================'
             echo "Build: ${BUILD_NUMBER}"
             echo "Backend: ${BACKEND_REPO}:${IMAGE_TAG}"
             echo "Frontend: ${FRONTEND_REPO}:${IMAGE_TAG}"
             echo "EKS Cluster: ${EKS_CLUSTER}"
+            echo "Helm Release: ${HELM_RELEASE}"
+            echo "Namespace: ${K8S_NAMESPACE}"
         }
 
         failure {
             echo '======================================'
-            echo ' CI/CD PIPELINE FAILED'
+            echo ' FLEETFLOW CI/CD PIPELINE FAILED'
             echo '======================================'
             echo "Check the Jenkins console output."
         }
@@ -199,6 +225,7 @@ pipeline {
         always {
             sh '''
                 echo "Cleaning unused Docker resources..."
+
                 docker image prune -f || true
             '''
 
