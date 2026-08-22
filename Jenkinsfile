@@ -17,7 +17,7 @@ pipeline {
         HELM_RELEASE = 'fleetflow'
         HELM_CHART = './helm/fleet-helm'
 
-        K8S_NAMESPACE = 'school-management'
+        K8S_NAMESPACE = 'FleetFlow'
     }
 
     stages {

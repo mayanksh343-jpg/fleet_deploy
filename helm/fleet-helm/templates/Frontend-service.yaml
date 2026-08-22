@@ -3,6 +3,9 @@ kind: Service
 
 metadata:
   name: fleetflow-frontend
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
+    service.beta.kubernetes.io/aws-load-balancer-subnets: subnet-06783f857ce5edcf3,subnet-0aedd54f255f7a635,subnet-0e73a6b7ca2857576
 
 spec:
 
@@ -14,7 +17,5 @@ spec:
   ports:
 
     - protocol: TCP
-
       port: {{ .Values.frontend.service.port }}
-
       targetPort: {{ .Values.frontend.containerPort }}
