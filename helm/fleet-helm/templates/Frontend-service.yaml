@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+
+metadata:
+  name: fleetflow-frontend
+
+spec:
+
+  type: {{ .Values.frontend.service.type }}
+
+  selector:
+    app: fleetflow-frontend
+
+  ports:
+
+    - protocol: TCP
+
+      port: {{ .Values.frontend.service.port }}
+
+      targetPort: {{ .Values.frontend.containerPort }}

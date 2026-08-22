@@ -1,0 +1,44 @@
+backend:
+  replicaCount: 1
+
+  image:
+    repository: 068765434248.dkr.ecr.ap-south-1.amazonaws.com/fleetflow-backend
+    tag: latest
+
+  containerPort: 5000
+
+  service:
+    type: ClusterIP
+    port: 5000
+
+frontend:
+  replicaCount: 1
+
+  image:
+    repository: 068765434248.dkr.ecr.ap-south-1.amazonaws.com/fleetflow-frontend
+    tag: latest
+
+  containerPort: 80
+
+  service:
+    type: LoadBalancer
+    port: 80
+
+resources:
+  backend:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  frontend:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+    limits:
+      cpu: 500m
+      memory: 256Mi

@@ -1,0 +1,26 @@
+services:
+
+frontend:
+ 
+  image: fleetflow-frontend:latest
+  container_name: fleetflow-frontend
+  ports:
+      - "3000:3000"
+
+  depends_on:
+      - backend    
+ 
+  backend:
+   image: fleetflow-backend:latest
+   container_name: fleetflow-backend
+   ports:
+       - "5000:5000"
+
+
+  mongo:
+    image: mongo
+    container_name: school-mongo
+    volumes:
+      - mongo-data:/data/db
+    ports:
+      - "27017:27017"
