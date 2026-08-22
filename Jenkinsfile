@@ -69,15 +69,17 @@ pipeline {
         stage('Security Scan') {
     steps {
         sh '''
+            echo "Scanning backend: $BACKEND_REPO:$IMAGE_TAG"
             trivy image \
             --severity HIGH,CRITICAL \
             --exit-code 0 \
-            $BACKEND_IMAGE:$TAG
+            $BACKEND_REPO:$IMAGE_TAG
 
+            echo "Scanning frontend: $FRONTEND_REPO:$IMAGE_TAG"
             trivy image \
             --severity HIGH,CRITICAL \
             --exit-code 0 \
-            $FRONTEND_IMAGE:$TAG
+            $FRONTEND_REPO:$IMAGE_TAG
         '''
     }
 }
