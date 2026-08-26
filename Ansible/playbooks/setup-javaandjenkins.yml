@@ -1,0 +1,71 @@
+---
+- name: Install Jenkins and Java
+  hosts: fleetflow
+  become: true
+
+  tasks:
+
+    - name: Update apt cache
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Install required packages
+      apt:
+        name:
+          - wget
+          - curl
+          - gnupg
+          - ca-certificates
+          - fontconfig
+        state: present
+
+    - name: Install Java 21
+      apt:
+        name: openjdk-21-jdk
+        state: present
+
+    - name: Verify Java installation
+      command: java -version
+      register: java_version
+      changed_when: false
+
+    - name: Display Java version
+      debug:
+        msg: "{{ java_version.stderr }}"
+
+    - name: Add Jenkins GPG key
+      get_url:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+        dest: /usr/share/keyrings/jenkins-keyring.asc
+        mode: '0644'
+
+    - name: Add Jenkins repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/"
+        state: present
+        filename: jenkins
+
+    - name: Update apt cache after adding Jenkins repository
+      apt:
+        update_cache: true
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: latest
+
+    - name: Enable and start Jenkins
+      systemd:
+        name: jenkins
+        enabled: true
+        state: started
+
+    - name: Display Jenkins service status
+      command: systemctl is-active jenkins
+      register: jenkins_status
+      changed_when: false
+
+    - name: Show Jenkins status
+      debug:
+        msg: "Jenkins status: {{ jenkins_status.stdout }}"
