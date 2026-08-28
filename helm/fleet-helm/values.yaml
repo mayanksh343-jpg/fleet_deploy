@@ -11,6 +11,17 @@ backend:
     type: ClusterIP
     port: 5000
 
+     replicaCount: 2
+
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+
+    targetCPUUtilizationPercentage: 70
+    targetMemoryUtilizationPercentage: 80
+
+
 frontend:
   replicaCount: 1
 

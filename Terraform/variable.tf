@@ -23,3 +23,10 @@ variable "project_name" {
   type        = string
   default     = "fleetflow"
 }
+
+variable "env" {
+  description = "Environment name"
+  type        = string
+  default     = "dev"
+  
+}
