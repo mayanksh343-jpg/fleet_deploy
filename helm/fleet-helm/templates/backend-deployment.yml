@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: fleetflow-backend
+
+  labels:
+    app: fleetflow-backend
+
+spec:
+  replicas: {{ .Values.backend.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: fleetflow-backend
+
+  template:
+
+    metadata:
+      labels:
+        app: fleetflow-backend
+
+    spec:
+
+      containers:
+
+        - name: backend
+
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+            - containerPort: {{ .Values.backend.containerPort }}
+          
+          env:
+            - name: FRONTEND_URL
+              value: "http://k8s-fleetflo-fleetflo-bee31e2f10-1e80b0ab8559bfac.elb.ap-south-1.amazonaws.com"
+        
+          resources:
+
+            requests:
+              cpu: {{ .Values.resources.backend.requests.cpu }}
+              memory: {{ .Values.resources.backend.requests.memory }}
+
+            limits:
+              cpu: {{ .Values.resources.backend.limits.cpu }}
+              memory: {{ .Values.resources.backend.limits.memory }}

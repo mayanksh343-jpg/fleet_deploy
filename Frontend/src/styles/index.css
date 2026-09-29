@@ -1,0 +1,71 @@
+@import "./fonts.css";
+@import "./tailwind.css";
+@import "./theme.css";
+
+@media print {
+  /* Override Dark Mode Variables for Print */
+  .dark {
+    --background: #FFFFFF !important;
+    --surface: #FFFFFF !important;
+    --border: #E2E8F0 !important;
+    --text-primary: #0F172A !important;
+    --text-secondary: #64748B !important;
+    --foreground: #0F172A !important;
+    --card: #FFFFFF !important;
+    --card-foreground: #0F172A !important;
+    --muted: #F1F5F9 !important;
+    --muted-foreground: #64748B !important;
+    --input: #E2E8F0 !important;
+  }
+
+  /* Prevent browser-generated headers/footers (e.g. localhost, dates) */
+  @page {
+    size: auto;
+    margin: 0mm;
+  }
+
+  /* Enforce white background and black text on print */
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 10mm !important; /* Provide physical page padding */
+  }
+
+  /* Hide sidebar, header, buttons and unnecessary elements */
+  aside,
+  header,
+  button {
+    display: none !important;
+  }
+
+  /* Reset main content container layout */
+  .lg\:ml-\[260px\] {
+    margin-left: 0 !important;
+  }
+
+  main {
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* Remove dark theme cards backgrounds & borders */
+  .bg-card {
+    background-color: transparent !important;
+    border-color: #e5e7eb !important;
+    box-shadow: none !important;
+  }
+
+  /* Prevent page breaks inside cards */
+  .bg-card,
+  .grid {
+    page-break-inside: avoid;
+  }
+
+  /* Force exact colors for charts and status colored text */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}

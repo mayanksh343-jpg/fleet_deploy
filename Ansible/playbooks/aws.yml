@@ -1,0 +1,47 @@
+---
+- name: Install AWS CLI
+  hosts: fleetflow
+  become: true
+
+  tasks:
+
+    - name: Install required packages
+      apt:
+        name:
+          - curl
+          - unzip
+        state: present
+        update_cache: true
+
+    - name: Check if AWS CLI is already installed
+      command: aws --version
+      register: aws_cli_check
+      changed_when: false
+      failed_when: false
+
+    - name: Download AWS CLI
+      get_url:
+        url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: /tmp/awscliv2.zip
+        mode: '0644'
+      when: aws_cli_check.rc != 0
+
+    - name: Extract AWS CLI
+      unarchive:
+        src: /tmp/awscliv2.zip
+        dest: /tmp
+        remote_src: true
+      when: aws_cli_check.rc != 0
+
+    - name: Install AWS CLI
+      command: /tmp/aws/install
+      when: aws_cli_check.rc != 0
+
+    - name: Verify AWS CLI
+      command: aws --version
+      register: aws_version
+      changed_when: false
+
+    - name: Show AWS CLI version
+      debug:
+        msg: "{{ aws_version.stdout }}"

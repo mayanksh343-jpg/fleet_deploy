@@ -1,0 +1,5 @@
+for ansible aws configure
+install kubectl 
+add usergroup in server
+
+sudo usermod -aG docker jenkins

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: fleetflow-frontend
+
+  labels:
+    app: fleetflow-frontend
+
+spec:
+
+  replicas: {{ .Values.frontend.replicaCount }}
+
+  selector:
+    matchLabels:
+      app: fleetflow-frontend
+
+  template:
+
+    metadata:
+      labels:
+        app: fleetflow-frontend
+
+    spec:
+
+      containers:
+
+        - name: frontend
+
+          image: "{{ .Values.frontend.image.repository }}:{{ .Values.frontend.image.tag }}"
+
+          imagePullPolicy: IfNotPresent
+
+          ports:
+
+            - containerPort: {{ .Values.frontend.containerPort }}
+
+          resources:
+
+            requests:
+              cpu: {{ .Values.resources.frontend.requests.cpu }}
+              memory: {{ .Values.resources.frontend.requests.memory }}
+
+            limits:
+              cpu: {{ .Values.resources.frontend.limits.cpu }}
+              memory: {{ .Values.resources.frontend.limits.memory }}

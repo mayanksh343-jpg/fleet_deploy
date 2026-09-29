@@ -1,0 +1,33 @@
+---
+- name: Install Helm
+  hosts: fleetflow
+  become: true
+
+  tasks:
+
+    - name: Check if Helm is installed
+      stat:
+        path: /usr/local/bin/helm
+      register: helm_binary
+
+    - name: Download Helm installation script
+      get_url:
+        url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+        dest: /tmp/get-helm-3
+        mode: '0755'
+      when: not helm_binary.stat.exists
+
+    - name: Install Helm
+      command: /tmp/get-helm-3
+      args:
+        creates: /usr/local/bin/helm
+      when: not helm_binary.stat.exists
+
+    - name: Verify Helm installation
+      command: helm version --short
+      register: helm_version
+      changed_when: false
+
+    - name: Display Helm version
+      debug:
+        msg: "{{ helm_version.stdout }}"

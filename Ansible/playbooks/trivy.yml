@@ -1,0 +1,55 @@
+---
+- name: Install Trivy
+  hosts: fleetflow
+  become: true
+
+  tasks:
+
+    - name: Check if Trivy is already installed
+      stat:
+        path: /usr/bin/trivy
+      register: trivy_binary
+
+    - name: Install required packages
+      apt:
+        name:
+          - wget
+          - gnupg
+        state: present
+        update_cache: true
+      when: not trivy_binary.stat.exists
+
+    - name: Add Trivy GPG key
+      shell: |
+        wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key \
+        | gpg --dearmor -o /usr/share/keyrings/trivy.gpg
+      args:
+        creates: /usr/share/keyrings/trivy.gpg
+      when: not trivy_binary.stat.exists
+
+    - name: Add Trivy repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb generic main"
+        state: present
+        filename: trivy
+      when: not trivy_binary.stat.exists
+
+    - name: Update apt cache
+      apt:
+        update_cache: true
+      when: not trivy_binary.stat.exists
+
+    - name: Install Trivy
+      apt:
+        name: trivy
+        state: latest
+      when: not trivy_binary.stat.exists
+
+    - name: Verify Trivy installation
+      command: trivy --version
+      register: trivy_version
+      changed_when: false
+
+    - name: Display Trivy version
+      debug:
+        msg: "{{ trivy_version.stdout }}"

@@ -1,0 +1,29 @@
+# Node
+node_modules/
+
+# Environment
+.env
+
+# Database
+*.db
+*.db-shm
+*.db-wal
+
+# PDF / spec docs
+*.pdf
+pdf_content.txt
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Build output
+dist/
+build/
+
+# Testing
+backend/e2e_*
