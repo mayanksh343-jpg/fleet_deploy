@@ -5,7 +5,7 @@ pipeline {
     environment {
         AWS_REGION = 'ap-south-1'
         AWS_ACCOUNT_ID = '068765434248'
-        EKS_CLUSTER = 'fleet-cluster'
+        EKS_CLUSTER = 'fleetflow-cluster'
 
         ECR_REGISTRY = "068765434248.dkr.ecr.ap-south-1.amazonaws.com"
 

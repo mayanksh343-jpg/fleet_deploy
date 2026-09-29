@@ -1,9 +1,7 @@
 ---
 - import_playbook: nginx.yml
-- import_playbook: helm.yml
+
 - import_playbook: aws.yml
 - import_playbook: docker.yml
 - import_playbook: trivy.yml
-- import_playbook: setup-javaandjenkins.yml
-- import_playbook: kubectl.yml
-
+- import_playbook: setup-java-and-jenkins.yml
