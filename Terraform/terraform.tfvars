@@ -1,0 +1,5 @@
+aws_region    = "ap-south-1"
+instance_type = "c7i-flex.large"
+ami_id        = "ami-07e5ce642bbc48c0d"
+key_name      = "shellscript"
+project_name  = "fleetflow"
